@@ -1,0 +1,295 @@
+<!doctype html>
+<html>
+
+    <head>
+        <meta charset="UTF-8" />
+        <title>Vem</title>
+		<script src="Game.js" ></script>
+		<script src="Player.js" ></script>
+		<script src="Skills/Projectile.js" ></script>
+        <script src="Skills/Buff.js" ></script>
+		<script src="Champions/Vayne/Vayne.js" ></script>
+		<script src="Champions/Ahri/Ahri.js" ></script>
+    </head>
+
+    <body>
+
+            <script type="text/javascript">
+                
+                document.write('<div id="game" style="position:relative; width:' + (WIDTH + 4) + '; height:' + (HEIGHT + 104) + ';"></div>');
+
+                var divgame = document.getElementById('game');
+                var cont = '<canvas id="bglayer" style="z-index: 0; position:absolute; left:0px; top:0px; border-style: solid; border-width: 2px;" height="' + HEIGHT + '" width="' + WIDTH + '"> ';
+                cont += 'This text is displayed if your browser does not support HTML5 Canvas.';
+                cont += '</canvas>';
+                cont += '<canvas id="gamelayer" style="z-index: 1; position:absolute; left:0px; top:0px; border-style: solid; border-width: 2px;" height="' + (HEIGHT) + '" width="' + (WIDTH) + '">';
+                cont += 'This text is displayed if your browser does not support HTML5 Canvas.';
+                cont += '</canvas>';
+                cont += '<canvas id="infolayer" style="z-index: 2; position:absolute; left:0px; top:' + (HEIGHT + 2) + 'px; border-style: solid; border-width: 2px;" height="' + 100 + '" width="' + (WIDTH) + '">';
+                cont += 'This text is displayed if your browser does not support HTML5 Canvas.';
+                cont += '</canvas>';
+                divgame.innerHTML = cont;
+
+                var start = null;
+
+                var player1 = new Vayne(50, HEIGHT-50);
+                var player2 = new Ahri(WIDTH-50, HEIGHT-50);
+                player1.enemy = player2;
+                player2.enemy = player1;
+
+                player2.flip = true;
+                var bg = new Image();
+                bg.src = "bg.jpg";
+                bg.onload = function() {
+                    loaded++;
+                    console.log(toLoad);
+                    console.log(loaded);
+                }
+
+
+                function init() {
+                    bglayer = document.getElementById("bglayer");
+                    bgctx = bglayer.getContext("2d");
+                    gamelayer = document.getElementById("gamelayer");
+                    gamectx = gamelayer.getContext("2d");
+                    infolayer = document.getElementById("infolayer");
+                    infoctx = infolayer.getContext("2d");
+
+                    function check(){
+                    	if(loaded != toLoad){
+                    		setInterval(check,2000);
+                    		console.log("pera");
+                    	} else {
+                    		bgDraw();
+                    		gameDraw();
+                    	}
+                    }
+                    check();
+                    
+                }
+
+                function gameDraw(timestamp) {
+                	requestAnimationFrame(gameDraw);
+					if (!start){
+						start = timestamp;
+						then = timestamp;
+					}
+
+					var elapsed = timestamp - start;
+                    delta = timestamp - then;
+
+                    if (delta > interval){
+                    	infoDraw();
+	                    gamectx.clearRect(1, 0, WIDTH, HEIGHT);
+
+	                    gamectx.font = "12px Impact";
+						gamectx.lineWidth = 1;
+						gamectx.fillText((elapsed/1000).toFixed(2), 10, 20);
+
+	                    player1.move(timestamp);
+	                    player2.move(timestamp);
+	                    player1.draw(timestamp);
+	                    player2.draw(timestamp);
+
+	                    then = timestamp - (delta % interval);
+	                }
+
+                    
+                }
+
+                function infoDraw(){
+                	infoctx.clearRect(1, 0, WIDTH, HEIGHT);
+
+	                infoctx.font = "12px Impact";
+					infoctx.lineWidth = 1;
+					infoctx.fillText("Player 1", 10, 20);
+					infoctx.fillText("HP: "+ player1.hp, 10, 40);
+					infoctx.fillText("MP: "+ player1.mp, 10, 55);
+                    if(player1.cdAA <= 0) infoctx.fillText("AA: 0", 80, 40);
+                    else{
+                        var cdAA = player1.cdAA/1000;
+                        infoctx.fillText("AA: "+cdAA.toFixed(1), 80, 40);  
+                    }
+                    if(player1.cdQ <= 0) infoctx.fillText("Q: 0", 130, 40);
+                    else{
+                        var cdQ = player1.cdQ/1000;
+                        infoctx.fillText("Q: "+cdQ.toFixed(1), 130, 40);  
+                    }
+                    if(player1.cdW <= 0) infoctx.fillText("W: 0", 180, 40);
+                    else{
+                        var cdW = player1.cdW/1000;
+                        infoctx.fillText("W: "+cdW.toFixed(1), 130, 40);  
+                    } 
+                    
+                    if(player1.cdE <= 0) infoctx.fillText("E: 0", 230, 40);
+                    else{
+                        var cdE = player1.cdE/1000;
+                        infoctx.fillText("E: "+cdE.toFixed(1), 230, 40);  
+                    } 
+                    if(player1.cdR <= 0) infoctx.fillText("R: 0", 280, 40);
+                    else{
+                        var cdR =  player1.cdR/1000;
+                        infoctx.fillText("R: "+cdR.toFixed(1), 280, 40);  
+                    } 
+
+					infoctx.fillText("Player 2", WIDTH - 50, 20);
+					infoctx.fillText("HP: "+ player2.hp, WIDTH - 50, 40);
+					infoctx.fillText("MP: "+ player2.mp, WIDTH - 50, 55);
+                    if(player2.cdAA <= 0) infoctx.fillText("AA: 0", WIDTH - 330, 40);
+                    else{
+                        var cdAA = player2.cdAA/1000;
+                        infoctx.fillText("AA: "+cdAA.toFixed(1), WIDTH - 330, 40);  
+                    }
+                    if(player2.cdQ <= 0) infoctx.fillText("Q: 0", WIDTH - 270, 40);
+                    else{
+                        var cdQ = player2.cdQ/1000;
+                        infoctx.fillText("Q: "+cdQ.toFixed(1), WIDTH - 270, 40);  
+                    } 
+                    if(player2.cdW <=0) infoctx.fillText("W: 0", WIDTH - 220, 40);
+                    else{
+                        var cdW = player2.cdW/1000;
+                        infoctx.fillText("W: "+cdW.toFixed(1), WIDTH - 220, 40);     
+                    }
+                    if(player2.cdE <= 0) infoctx.fillText("E: 0", WIDTH - 170, 40);
+                    else{
+                        var cdE = player2.cdE/1000;
+                        infoctx.fillText("E: "+cdE.toFixed(1), WIDTH - 170, 40);  
+                    } 
+                    if(player2.cdR <= 0) infoctx.fillText("R: 0", WIDTH - 120, 40);
+                    else{
+                        var cdR =  player2.cdR/1000;
+                        infoctx.fillText("R: "+cdR.toFixed(1), WIDTH - 120, 40);  
+                    } 
+
+
+                }
+
+
+                function bgDraw() {
+                    bgctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+                    bgctx.globalAlpha = 0.9;
+                    bgctx.drawImage(bg, 0, 0, WIDTH, HEIGHT);
+
+                    bgctx.fillStyle = "#AAAA44";
+
+                    for (var i = 0; i < mapsizex; i++) {
+                        for (var j = 0; j < mapsizey; j++) {
+                            if (map[j][i]) bgctx.fillRect(i * tilewidth, (j + 1) * tileheight, tilewidth, 2);
+                        }
+                    }
+                    
+                    
+                }
+
+                document.addEventListener("keydown", function(e) {
+                    console.log(e.keyCode);
+                    switch (e.keyCode) {
+                        case 65:
+                            player1.movingLeft = true;
+                            break;
+                        case 87:
+                            player1.lookingUp = true;
+                            break;
+                        case 68:
+                            player1.movingRight = true;
+                            break;
+                        case 83:
+                            player1.lookingDown = true;
+                            break;
+
+                        case 72:
+                            if (player1.stunned <= 0 && player1.silenced <= 0 && player1.cdQ <= 0) player1.castQ();
+                            break;
+                        case 74:
+                            if (player1.stunned <= 0 && player1.silenced <= 0 && player1.cdW <= 0) player1.castW();
+                            break;
+                        case 75:
+                            if (player1.stunned <= 0 && player1.silenced <= 0 && player1.cdE <= 0) player1.castE();
+                            break;
+                        case 76:
+                            if (player1.stunned <= 0 && player1.silenced <= 0 && player1.cdR <= 0) player1.castR();
+                            break;
+                        case 85:
+                            if (player1.stunned <= 0 && player1.cdAA <= 0) player1.autoAttack();
+                            break;
+                        case 89:
+                            player1.audio["taunt"].play();
+                            break;
+
+
+                        case 37:
+                            player2.movingLeft = true;
+                            break;
+                        case 38:
+                            player2.lookingUp = true;
+                            break;
+                        case 39:
+                            player2.movingRight = true;
+                            break;
+                        case 40:
+                            player2.lookingDown = true;
+                            break;
+
+                        case 100:
+                            if (player2.stunned <= 0 && player2.silenced <= 0 && player2.cdQ <= 0) player2.castQ();
+                            break;
+                        case 101:
+                            if (player2.stunned <= 0 && player2.silenced <= 0 && player2.cdW <= 0) player2.castW();
+                            break;
+                        case 102:
+                            if (player2.stunned <= 0 && player2.silenced <= 0 && player2.cdE <= 0) player2.castE();
+                            break;
+                        case 108:
+                            if (player2.stunned <= 0 && player2.silenced <= 0 && player2.cdR <= 0) player2.castR();
+                            break;
+                        case 194:
+                            if (player2.stunned <= 0 && player2.silenced <= 0 && player2.cdR <= 0) player2.castR();
+                            break;
+                        case 104:
+                            if (player2.stunned <= 0 && player2.cdAA <= 0) player2.autoAttack();
+                            break;
+                        case 103:
+                        	player2.audio["taunt"].play();
+
+                    }
+                }, false);
+
+                document.addEventListener("keyup", function(e) {
+                    switch (e.keyCode) {
+                        case 65:
+                            player1.movingLeft = false;
+                            break;
+                        case 87:
+                            player1.lookingUp = false;
+                            break;
+                        case 68:
+                            player1.movingRight = false;
+                            break;
+                        case 83:
+                            player1.lookingDown = false;
+                            break;
+
+
+
+                        case 37:
+                            player2.movingLeft = false;
+                            break;
+                        case 38:
+                            player2.lookingUp = false;
+                            break;
+                        case 39:
+                            player2.movingRight = false;
+                            break;
+                        case 40:
+                            player2.lookingDown = false;
+                            break;
+                    }
+                }, false);
+
+                window.onload = init();
+            </script>
+
+    </body>
+
+</html>
