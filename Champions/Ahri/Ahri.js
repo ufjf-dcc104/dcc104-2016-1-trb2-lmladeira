@@ -283,10 +283,11 @@ Ahri.prototype.castE = function(){
             sy = 0; 
         }
     }
+
     var skill = new Projectile(x, y, sx, sy, 6, 6, range, damage, this, this.enemy, true);
 
     skill.onHitEffect = function(){
-        this.target.snared = 2000;
+        this.caster.castETaunt();
         this.caster.audio["EHit"].play();
     }
 
@@ -296,6 +297,31 @@ Ahri.prototype.castE = function(){
     this.audio["taunt"].currentTime = 0;
     this.audio["EVoice"].play();
     this.cdE = 10000;
+}
+
+Ahri.prototype.castETaunt = function() {
+    var buff = new Buff(2000, this.enemy, this);
+    var tauntSpeed = 1*dt;
+    this.enemy.stunned = 2000;
+
+    buff.tick = function(timestamp) {
+        if (!this.started){
+            this.buffLTS = timestamp;
+            this.started = true;
+        }
+        if (this.caster.x < this.target.x){
+            this.caster.x += tauntSpeed;
+            this.caster.flip = false;
+        } else {
+            this.caster.x -= tauntSpeed;
+            this.caster.flip = true;
+        }
+
+        this.checkEnd(timestamp);
+    }
+
+    this.enemy.buffs.push(buff);
+
 }
 
 Ahri.prototype.castR = function() {
