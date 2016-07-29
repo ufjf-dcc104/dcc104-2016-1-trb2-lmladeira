@@ -89,10 +89,12 @@ Player.prototype.move = function (timestamp) {
     if (this.stunned <= 0  && this.snared <= 0 && this.casting <= 0) {
     	if (this.movingLeft) {
             this.sx -= 4*dt;
+            this.flip = true;
         }
 
         if (this.movingRight) {
             this.sx += 4*dt;
+            this.flip = false;
         }
 
         if (this.lookingUp && !this.jumping) {
@@ -154,11 +156,11 @@ Player.prototype.pdraw = function (timestamp) {
     var state = 0;
     if (this.movingLeft && !this.movingRight) {
         state = 1;
-        this.flip = true;
+        
     }
     if (!this.movingLeft && this.movingRight) {
         state = 1;
-        this.flip = false;
+        
     }
     if (this.jumping){
         state = 2;

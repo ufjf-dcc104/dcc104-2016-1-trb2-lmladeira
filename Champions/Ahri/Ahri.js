@@ -87,6 +87,7 @@ Ahri.prototype.autoAttack = function(){
     this.audio["AACast"].play();
 }
 Ahri.prototype.castQ = function(){
+    this.mp -= 40;
 	var x, y, sx, sy;
 	var speed = 8*dt;
 	var range = 200;
@@ -186,6 +187,7 @@ Ahri.prototype.castQback = function(x, y){
 }
 
 Ahri.prototype.castW = function(){
+    this.mp -= 50;
     
     var buff = new Buff(6000, this, this.enemy);
     buff.charges = 3;
@@ -252,6 +254,7 @@ Ahri.prototype.castWFire = function(charges){
 }
 
 Ahri.prototype.castE = function(){
+    this.mp -= 60;
     var x, y, sx, sy;
     var speed = 6*dt;
     var range = 220;
@@ -296,7 +299,7 @@ Ahri.prototype.castE = function(){
 }
 
 Ahri.prototype.castR = function() {
-
+    this.mp -= 30;
     if (this.ultCharges > 0){
 
         var buff = new Buff(200, this, this.enemy);
@@ -319,8 +322,12 @@ Ahri.prototype.castR = function() {
                 this.buffLTS = timestamp;
                 this.started = true;
             }
-            this.caster.x += dashx;
-            this.caster.y += dashy;
+            if ((this.caster.x + dashx < (WIDTH-(this.caster.sizex/2))) && (this.caster.x + dashx > (0+(this.caster.sizex/2)))){
+                this.caster.x += dashx;
+            }
+            if (this.caster.y + dashy > (0+(this.caster.sizey))){
+                this.caster.y += dashy;
+            }
             this.checkEnd(timestamp);
         }
 

@@ -8,7 +8,7 @@ var Vayne = function(startx, starty) {
     this.cdQ = 0;
     this.cdW = 0;
     this.cdE = 0;
-    this.cdR = 0000;
+    this.cdR = 20000;
 
     this.audio = {};
 
@@ -34,7 +34,7 @@ var Vayne = function(startx, starty) {
         this.audio[i].load();
     }
 
-    Player.call(this, 355, 283, startx, starty, 10, "Vayne");
+    Player.call(this, 355, 283, startx, starty, 12, "Vayne");
 }
 herdaPlayer(Vayne);
 
@@ -113,7 +113,9 @@ Vayne.prototype.castQ = function(){
             this.buffLTS = timestamp;
             this.started = true;
         }
-        this.caster.x += dashSpeed;
+        if ((this.caster.x + dashSpeed < (WIDTH-(this.caster.sizex/2))) && (this.caster.x + dashSpeed > (0+(this.caster.sizex/2)))){
+            this.caster.x += dashSpeed;
+        }
         this.checkEnd(timestamp);
     }   
     
@@ -172,8 +174,22 @@ Vayne.prototype.castE = function(){
                     this.buffLTS = timestamp;
                     this.started = true;
                 }
-                this.target.x += dashSpeed;
-                //checa colisao
+
+
+                if (this.target.x + dashSpeed > (WIDTH-(this.target.sizex/2)) ){
+                    this.target.x = (WIDTH-(this.target.sizex/2));
+                    this.end = true;
+                    this.target.casting = 0;
+                    this.target.stunned = 2000;
+                } else if (this.target.x + dashSpeed < (0+(this.target.sizex/2))){
+                    this.target.x = (0+(this.target.sizex/2));
+                    this.end = true;
+                    this.target.casting = 0;
+                    this.target.stunned = 2000;
+                } else {
+                    this.target.x += dashSpeed;
+                }
+
                 this.checkEnd(timestamp);
             }
 
